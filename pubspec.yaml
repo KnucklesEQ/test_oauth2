@@ -1,0 +1,27 @@
+name: test_oauth2
+description: Test web app developed with the use of OAuth's GitHub authentication process as the main target
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  bloc: ^7.0.0
+  dio: ^4.0.0
+  equatable: ^2.0.3
+  flutter_bloc: ^7.1.0
+  shared_preferences: ^2.0.6
+  url_launcher: ^6.0.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
