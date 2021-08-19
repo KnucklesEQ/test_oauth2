@@ -16,6 +16,7 @@ dependencies:
   dio: ^4.0.0
   equatable: ^2.0.3
   flutter_bloc: ^7.1.0
+  oauth2: ^2.0.0
   shared_preferences: ^2.0.6
   url_launcher: ^6.0.9
 
