@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_oauth2/blocs/splashroot/splashroot.dart';
-import 'package:test_oauth2/pageroutes/homemain_pagerouter.dart';
 import 'package:test_oauth2/pageroutes/login_pagerouter.dart';
 import 'package:test_oauth2/widgets/my_generic_loading_indicator.dart';
 
@@ -30,11 +29,6 @@ class _SplashRootPageState extends State<SplashRootPage> {
     return BlocListener(
       bloc: _splashRootBloc,
       listener: (BuildContext context, SplashRootState state) {
-        if (state is SplashRootStateUserLogged) {
-          HomeMainPageRouter.navigateAndRemove(context: context);
-          return;
-        }
-
         if (state is SplashRootStateUserNotLogged) {
           LoginPageRouter.navigateAndRemove(context: context);
           return;

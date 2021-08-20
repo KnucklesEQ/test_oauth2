@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_oauth2/pages/four04_page.dart';
-import 'package:test_oauth2/pages/login_page.dart';
+import 'package:test_oauth2/pages/login/login_page.dart';
 import 'web_router.dart';
 
 class LoginPageRouter extends WebRouter {
