@@ -11,9 +11,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final List<String> githubScopes = ['repo', 'read:org'];
 
   final Uri authorizeURI =
-  Uri.parse('https://github.com/login/oauth/authorize');
+      Uri.parse('https://github.com/login/oauth/authorize');
   final Uri tokenURI = Uri.parse('https://github.com/login/oauth/access_token');
-  final String apiURLBase = 'https://api.github.com/';
 
   HttpServer? _redirectServer;
   oauth2.Client? _client;
@@ -23,77 +22,55 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is EventLoginInit) {
-      yield LoginStateLoading();
       yield LoginStateIdle();
       return;
     }
 
-    if (event is EventLoginButtonPress) {
-      yield LoginStateLoading();
+    if (event is EventLoginGitHubButtonPress) {
+      yield LoginStateStartLoadingGitHub();
 
       await _redirectServer?.close();
       // Bind to an ephemeral port on localhost
       _redirectServer = await HttpServer.bind('localhost', 8200);
-      /*int index = 0;
-      await for (var request in _redirectServer!) {
-        request.response.write("Hello world $index");
-        request.response.close();
-        index ++;
-      }
-      print("llego");*/
-      var authenticatedHttpClient = await _getOAuth2Client(
-        //Uri.parse('http://localhost:${_redirectServer!.port}/auth'),
-        Uri.parse('http://localhost:8200'),
+
+      var grant = oauth2.AuthorizationCodeGrant(
+        githubClientID,
+        authorizeURI,
+        tokenURI,
+        secret: githubClientSecret,
+        httpClient: _JsonAcceptingHttpClient(),
       );
 
-      _client = authenticatedHttpClient;
+      var authorizationUrl = grant.getAuthorizationUrl(
+        Uri.parse('http://localhost:8200'),
+        scopes: githubScopes,
+      );
+
+      await _redirect(authorizationUrl);
+      var responseQueryParameters = await _listen();
+      print("Response Parameters: " + responseQueryParameters.toString());
+      _client =
+          await grant.handleAuthorizationResponse(responseQueryParameters);
+
       print("Access Token: " + _client!.credentials.accessToken);
       print(_client!.credentials.toJson().toString());
-      /*
-      Dio dio = new Dio();
-      Map<String, dynamic>? map = {};
-      map['response_type'] = 'code';
-      map['client_id'] = githubClientID;
-      map['redirect_uri'] = 'http://127.0.0.1:8200/#/patatasdeburgos';
-      map['scope'] = ['user', 'public_repo'];
-      map['state'] = 'chumbawamba';
 
-      try {
-        Response response = await dio.get(apiURLBase, queryParameters: map);
-
-        debugPrint('Login -> Status Code: ' + response.statusCode.toString());
-
-        if (response.statusCode == 200) {
-          print("Entro");
-          print(response.toString());
-        }
-      } on DioError catch (error) {
-        debugPrint('CATCH ERROR en LOGIN USER: ' + error.toString());
-      } finally {
-        dio.close();
-      }*/
-
+      yield LoginStateGitHubRefreshData(
+        accessToken: _client!.credentials.accessToken,
+        authToken: responseQueryParameters.toString(),
+      );
+      yield LoginStateEndLoadingGitHub();
       yield LoginStateIdle();
       return;
     }
-  }
 
-  Future<oauth2.Client> _getOAuth2Client(Uri redirectUrl) async {
-    var grant = oauth2.AuthorizationCodeGrant(
-      githubClientID,
-      authorizeURI,
-      tokenURI,
-      secret: githubClientSecret,
-      httpClient: _JsonAcceptingHttpClient(),
-    );
-    var authorizationUrl =
-    grant.getAuthorizationUrl(redirectUrl, scopes: githubScopes);
+    if (event is EventLoginTwitchButtonPress) {
+      yield LoginStateStartLoadingTwitch();
 
-    await _redirect(authorizationUrl);
-    var responseQueryParameters = await _listen();
-    var client =
-    await grant.handleAuthorizationResponse(responseQueryParameters);
-    return client;
+      yield LoginStateEndLoadingTwitch();
+      yield LoginStateIdle();
+      return;
+    }
   }
 
   Future<void> _redirect(Uri authorizationUrl) async {
@@ -106,19 +83,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   Future<Map<String, String>> _listen() async {
-    var request;// = await _redirectServer!.first;
-
-    int index = 0;
-    await for (var requested in _redirectServer!) {
-      request = requested;
-      requested.response.writeln("Hello world $index");
-      //requested.response.close();
-      index++;
-      break;
-    }
-
+    var request = await _redirectServer!.first;
     var params = request.uri.queryParameters;
     request.response.writeln('Authenticated! You can close this tab.');
+
     await request.response.close();
     await _redirectServer!.close();
     _redirectServer = null;

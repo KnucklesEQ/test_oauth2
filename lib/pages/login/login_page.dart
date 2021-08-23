@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_oauth2/blocs/login/login.dart';
-import 'package:test_oauth2/widgets/my_generic_loading_indicator.dart';
 
 import 'github_card.dart';
 import 'twitch_card.dart';
@@ -48,18 +47,13 @@ class _LoginPageState extends State<LoginPage> {
                   tileMode: TileMode.clamp,
                 ),
               ),
-              child: Stack(
-                children: [
-                  Center(child: Wrap(
-                    children: [
-                      GitHubCard(),
-                      TwitchCard(),
-                    ],
-                  )),
-                  (state is LoginStateLoading)
-                      ? MyGenericLoadingIndicator()
-                      : Container(),
-                ],
+              child: Center(
+                child: Wrap(
+                  children: [
+                    GitHubCard(),
+                    TwitchCard(),
+                  ],
+                ),
               ),
             ),
           );

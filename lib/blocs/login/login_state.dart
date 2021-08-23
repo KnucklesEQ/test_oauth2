@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-abstract class LoginState extends Equatable{
+abstract class LoginState extends Equatable {
   const LoginState();
 
   @override
@@ -12,26 +12,45 @@ class LoginStateUninitialized extends LoginState {
   String toString() => 'Login_State_Uninitialized';
 }
 
-class LoginStateLoading extends LoginState {
+class LoginStateStartLoadingGitHub extends LoginState {
   @override
-  String toString() => 'Login_State_Loading';
+  String toString() => 'Login_State_StartLoadingGitHub';
+}
+
+class LoginStateStartLoadingTwitch extends LoginState {
+  @override
+  String toString() => 'Login_State_StartLoadingTwitch';
+}
+
+class LoginStateEndLoadingGitHub extends LoginState {
+  @override
+  String toString() => 'Login_State_EndLoadingGitHub';
+}
+
+class LoginStateEndLoadingTwitch extends LoginState {
+  @override
+  String toString() => 'Login_State_EndLoadingTwitch';
+}
+
+class LoginStateGitHubRefreshData extends LoginState {
+  final String accessToken;
+  final String authToken;
+
+  const LoginStateGitHubRefreshData({
+    required this.accessToken,
+    required this.authToken,
+  });
+
+  @override
+  List<Object?> get props => [accessToken, authToken];
+
+  @override
+  String toString() => 'Login_State_GitHubRefreshData';
 }
 
 class LoginStateIdle extends LoginState {
   @override
   String toString() => 'Login_State_Idle';
-}
-
-class LoginStateGoToRemote extends LoginState {
-  final String url;
-
-  const LoginStateGoToRemote({required this.url});
-
-  @override
-  List<Object?> get props => [url];
-
-  @override
-  String toString() => 'Login_State_GoToRemote';
 }
 
 class LoginStateSuccess extends LoginState {

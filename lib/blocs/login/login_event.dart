@@ -12,7 +12,12 @@ class EventLoginInit extends LoginEvent {
   String toString() => 'Event_Login_Init';
 }
 
-class EventLoginButtonPress extends LoginEvent {
+class EventLoginGitHubButtonPress extends LoginEvent {
   @override
-  String toString() => 'Event_Login_ButtonPress';
+  String toString() => 'Event_Login_GitHubButtonPress';
+}
+
+class EventLoginTwitchButtonPress extends LoginEvent {
+  @override
+  String toString() => 'Event_Login_TwitchButtonPress';
 }
