@@ -12,6 +12,11 @@ class LoginStateUninitialized extends LoginState {
   String toString() => 'Login_State_Uninitialized';
 }
 
+class LoginStateIdle extends LoginState {
+  @override
+  String toString() => 'Login_State_Idle';
+}
+
 class LoginStateStartLoadingGitHub extends LoginState {
   @override
   String toString() => 'Login_State_StartLoadingGitHub';
@@ -48,12 +53,9 @@ class LoginStateGitHubRefreshData extends LoginState {
   String toString() => 'Login_State_GitHubRefreshData';
 }
 
-class LoginStateIdle extends LoginState {
-  @override
-  String toString() => 'Login_State_Idle';
-}
-
 class LoginStateSuccess extends LoginState {
   @override
   String toString() => 'Login_State_Success';
 }
+
+class LoginStateTralari extends LoginState{}

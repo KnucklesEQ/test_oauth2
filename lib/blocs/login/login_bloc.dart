@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:test_oauth2/blocs/login/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:oauth2/oauth2.dart' as oauth2;
+import 'package:uni_links/uni_links.dart' as uni;
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
@@ -29,10 +31,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     if (event is EventLoginGitHubButtonPress) {
       yield LoginStateStartLoadingGitHub();
 
-      await _redirectServer?.close();
-      // Bind to an ephemeral port on localhost
-      _redirectServer = await HttpServer.bind('localhost', 8200);
-
       var grant = oauth2.AuthorizationCodeGrant(
         githubClientID,
         authorizeURI,
@@ -41,24 +39,40 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         httpClient: _JsonAcceptingHttpClient(),
       );
 
-      var authorizationUrl = grant.getAuthorizationUrl(
+      Uri authorizationUrl = grant.getAuthorizationUrl(
         Uri.parse('http://localhost:8200'),
         scopes: githubScopes,
       );
 
-      await _redirect(authorizationUrl);
-      var responseQueryParameters = await _listen();
-      print("Response Parameters: " + responseQueryParameters.toString());
-      _client =
-          await grant.handleAuthorizationResponse(responseQueryParameters);
+      if (kIsWeb) {
+        if (await canLaunch(authorizationUrl.toString())) {
+          await launch(authorizationUrl.toString());
+        } else {
+          print('Could not launch $authorizationUrl.toString()');
+        }
 
-      print("Access Token: " + _client!.credentials.accessToken);
-      print(_client!.credentials.toJson().toString());
+        yield LoginStateTralari();
+        return;
+      } else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+        await _redirectServer?.close();
+        // Bind to an ephemeral port on localhost
+        _redirectServer = await HttpServer.bind('localhost', 8200);
 
-      yield LoginStateGitHubRefreshData(
-        accessToken: _client!.credentials.accessToken,
-        authToken: responseQueryParameters.toString(),
-      );
+        await _redirect(authorizationUrl);
+        var responseQueryParameters = await _listen();
+        debugPrint(
+            "Response Parameters: " + responseQueryParameters.toString());
+        _client =
+            await grant.handleAuthorizationResponse(responseQueryParameters);
+
+        debugPrint("Access Token: " + _client!.credentials.accessToken);
+        print(_client!.credentials.toJson().toString());
+
+        yield LoginStateGitHubRefreshData(
+          accessToken: _client!.credentials.accessToken,
+          authToken: responseQueryParameters.toString(),
+        );
+      }
       yield LoginStateEndLoadingGitHub();
       yield LoginStateIdle();
       return;

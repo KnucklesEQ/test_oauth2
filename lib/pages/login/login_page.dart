@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_oauth2/blocs/login/login.dart';
+import 'package:uni_links/uni_links.dart' as uni;
 
 import 'github_card.dart';
 import 'twitch_card.dart';
@@ -12,7 +13,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   late final LoginBloc _loginBloc;
-
+  late final linkStream;
   @override
   void initState() {
     super.initState();
@@ -23,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     super.dispose();
     _loginBloc.close();
+    linkStream.close();
   }
 
   @override
@@ -31,7 +33,17 @@ class _LoginPageState extends State<LoginPage> {
       create: (context) => _loginBloc,
       child: BlocConsumer<LoginBloc, LoginState>(
         bloc: _loginBloc,
-        listener: (BuildContext context, LoginState state) {},
+        listener: (BuildContext context, LoginState state) {
+          if(state is LoginStateTralari){
+            linkStream = uni.uriLinkStream.listen((Uri? uri) async {
+              print("LA PUTA URI -> " + uri.toString());
+              /*if (uri.toString().startsWith(redirectUrl)) {
+                responseUrl = uri;
+              }*/
+            });
+            return;
+          }
+        },
         builder: (BuildContext context, LoginState state) {
           return Scaffold(
             body: Container(
