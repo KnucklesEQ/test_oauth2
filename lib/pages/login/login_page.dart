@@ -34,15 +34,7 @@ class _LoginPageState extends State<LoginPage> {
       child: BlocConsumer<LoginBloc, LoginState>(
         bloc: _loginBloc,
         listener: (BuildContext context, LoginState state) {
-          if(state is LoginStateTralari){
-            linkStream = uni.uriLinkStream.listen((Uri? uri) async {
-              print("LA PUTA URI -> " + uri.toString());
-              /*if (uri.toString().startsWith(redirectUrl)) {
-                responseUrl = uri;
-              }*/
-            });
-            return;
-          }
+
         },
         builder: (BuildContext context, LoginState state) {
           return Scaffold(

@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:test_oauth2/blocs/login/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:oauth2/oauth2.dart' as oauth2;
-import 'package:uni_links/uni_links.dart' as uni;
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
@@ -51,7 +50,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           print('Could not launch $authorizationUrl.toString()');
         }
 
-        yield LoginStateTralari();
         return;
       } else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
         await _redirectServer?.close();

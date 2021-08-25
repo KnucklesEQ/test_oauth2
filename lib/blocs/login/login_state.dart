@@ -57,5 +57,3 @@ class LoginStateSuccess extends LoginState {
   @override
   String toString() => 'Login_State_Success';
 }
-
-class LoginStateTralari extends LoginState{}
