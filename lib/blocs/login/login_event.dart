@@ -8,6 +8,10 @@ abstract class LoginEvent extends Equatable {
 }
 
 class EventLoginInit extends LoginEvent {
+  final String gitHubCode;
+
+  const EventLoginInit({required this.gitHubCode});
+
   @override
   String toString() => 'Event_Login_Init';
 }

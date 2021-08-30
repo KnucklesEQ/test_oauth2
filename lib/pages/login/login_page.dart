@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_oauth2/blocs/login/login.dart';
+import 'package:test_oauth2/pageroutes/callbackgh_pagerouter.dart';
 
 import 'github_card.dart';
 import 'office365_card.dart';
 
 class LoginPage extends StatefulWidget {
+  final String gitHubCode;
+
+  LoginPage({this.gitHubCode = ''});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -13,10 +18,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   late final LoginBloc _loginBloc;
   late final linkStream;
+
   @override
   void initState() {
     super.initState();
-    _loginBloc = new LoginBloc()..add(EventLoginInit());
+    _loginBloc = new LoginBloc()
+      ..add(EventLoginInit(gitHubCode: widget.gitHubCode));
   }
 
   @override
@@ -32,9 +39,7 @@ class _LoginPageState extends State<LoginPage> {
       create: (context) => _loginBloc,
       child: BlocConsumer<LoginBloc, LoginState>(
         bloc: _loginBloc,
-        listener: (BuildContext context, LoginState state) {
-
-        },
+        listener: (BuildContext context, LoginState state) {},
         builder: (BuildContext context, LoginState state) {
           return Scaffold(
             body: Container(

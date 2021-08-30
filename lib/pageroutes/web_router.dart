@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:test_oauth2/pages/four04_page.dart';
 
+import 'callbackgh_pagerouter.dart';
 import 'login_pagerouter.dart';
 import 'splashroot_pagerouter.dart';
 
@@ -26,6 +27,7 @@ abstract class WebRouter {
 
   static final routers = [
     // start with most specific one first
+    CallbackGHPageRouter(),
     LoginPageRouter(),
     SplashRootPageRouter(),
   ];

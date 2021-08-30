@@ -23,6 +23,29 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is EventLoginInit) {
+      if(event.gitHubCode.isNotEmpty){
+        var grant = oauth2.AuthorizationCodeGrant(
+          githubClientID,
+          authorizeURI,
+          tokenURI,
+          secret: githubClientSecret,
+          httpClient: _JsonAcceptingHttpClient(),
+        );
+
+        Map<String, String> responseQueryParameters = {};
+        responseQueryParameters["code"] = event.gitHubCode;
+
+        _client = await grant.handleAuthorizationResponse(responseQueryParameters);
+
+        debugPrint("Access Token: " + _client!.credentials.accessToken);
+        print(_client!.credentials.toJson().toString());
+
+        yield LoginStateGitHubRefreshData(
+          accessToken: _client!.credentials.accessToken,
+          authToken: responseQueryParameters.toString(),
+        );
+      }
+
       yield LoginStateIdle();
       return;
     }
@@ -39,16 +62,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
 
       Uri authorizationUrl = grant.getAuthorizationUrl(
-        Uri.parse('http://localhost:8200'),
+        Uri.parse('http://localhost:8200/callbackgh.html'),
         scopes: githubScopes,
       );
 
       if (kIsWeb) {
-        if (await canLaunch(authorizationUrl.toString())) {
-          await launch(authorizationUrl.toString());
-        } else {
-          print('Could not launch $authorizationUrl.toString()');
-        }
+        await _redirect(authorizationUrl);
 
         return;
       } else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
@@ -57,7 +76,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         _redirectServer = await HttpServer.bind('localhost', 8200);
 
         await _redirect(authorizationUrl);
-        var responseQueryParameters = await _listen();
+        Map<String, String> responseQueryParameters = await _listen();
         debugPrint(
             "Response Parameters: " + responseQueryParameters.toString());
         _client =
@@ -88,7 +107,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Future<void> _redirect(Uri authorizationUrl) async {
     var url = authorizationUrl.toString();
     if (await canLaunch(url)) {
-      await launch(url);
+      if (kIsWeb) {
+        await launch(url, webOnlyWindowName: '_self');
+      }
+      else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows)
+        await launch(url);
     } else {
       print('Could not launch $url');
     }

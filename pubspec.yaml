@@ -18,7 +18,7 @@ dependencies:
   flutter_bloc: ^7.2.0
   font_awesome_flutter: ^9.1.0
   oauth2: ^2.0.0
-  shared_preferences: ^2.0.6
+  shared_preferences: ^2.0.7
   uni_links: ^0.5.1
   url_launcher: ^6.0.9
 
