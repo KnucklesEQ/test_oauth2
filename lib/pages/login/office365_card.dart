@@ -5,12 +5,12 @@ import 'package:test_oauth2/blocs/login/login.dart';
 import 'package:test_oauth2/widgets/my_generic_loading_indicator.dart';
 import 'package:test_oauth2/widgets/my_stretchable_button.dart';
 
-class TwitchCard extends StatefulWidget {
+class Office365Card extends StatefulWidget {
   @override
-  State<TwitchCard> createState() => _TwitchCardState();
+  State<Office365Card> createState() => _Office365CardState();
 }
 
-class _TwitchCardState extends State<TwitchCard> {
+class _Office365CardState extends State<Office365Card> {
   final double defaultBorderRadius = 3.0;
   bool isLoading = false;
 
@@ -18,12 +18,12 @@ class _TwitchCardState extends State<TwitchCard> {
   Widget build(BuildContext context) {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (BuildContext context, LoginState state) {
-        if (state is LoginStateStartLoadingTwitch) {
+        if (state is LoginStateStartLoadingOffice365) {
           isLoading = true;
           return;
         }
 
-        if (state is LoginStateEndLoadingTwitch) {
+        if (state is LoginStateEndLoadingOffice365) {
           isLoading = false;
           return;
         }
@@ -48,11 +48,11 @@ class _TwitchCardState extends State<TwitchCard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         MyStretchableButton(
-                          buttonColor: Color(0xFF6441A5),
+                          buttonColor: Color(0xFFDC3E15),
                           borderRadius: defaultBorderRadius,
                           onPressed: () =>
                               BlocProvider.of<LoginBloc>(context).add(
-                            EventLoginTwitchButtonPress(),
+                            EventLoginOffice365ButtonPress(),
                           ),
                           centered: false,
                           children: <Widget>[
@@ -69,7 +69,7 @@ class _TwitchCardState extends State<TwitchCard> {
                                 ),
                                 child: Center(
                                   child: FaIcon(
-                                    FontAwesomeIcons.twitch,
+                                    FontAwesomeIcons.microsoft,
                                     size: 18.0,
                                     color: Colors.black,
                                   ),
@@ -81,7 +81,7 @@ class _TwitchCardState extends State<TwitchCard> {
                               padding:
                                   const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
                               child: Text(
-                                "Conectar a Twitch",
+                                "Conectar a Office 365",
                                 style: TextStyle(
                                   fontSize: 18.0,
                                   fontFamily: "Roboto",

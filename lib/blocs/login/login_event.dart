@@ -17,7 +17,7 @@ class EventLoginGitHubButtonPress extends LoginEvent {
   String toString() => 'Event_Login_GitHubButtonPress';
 }
 
-class EventLoginTwitchButtonPress extends LoginEvent {
+class EventLoginOffice365ButtonPress extends LoginEvent {
   @override
-  String toString() => 'Event_Login_TwitchButtonPress';
+  String toString() => 'Event_Login_Office365ButtonPress';
 }

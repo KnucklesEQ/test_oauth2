@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_oauth2/blocs/login/login.dart';
-import 'package:uni_links/uni_links.dart' as uni;
 
 import 'github_card.dart';
-import 'twitch_card.dart';
+import 'office365_card.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -55,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Wrap(
                   children: [
                     GitHubCard(),
-                    TwitchCard(),
+                    Office365Card(),
                   ],
                 ),
               ),

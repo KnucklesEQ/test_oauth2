@@ -76,10 +76,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       return;
     }
 
-    if (event is EventLoginTwitchButtonPress) {
-      yield LoginStateStartLoadingTwitch();
+    if (event is EventLoginOffice365ButtonPress) {
+      yield LoginStateStartLoadingOffice365();
 
-      yield LoginStateEndLoadingTwitch();
+      yield LoginStateEndLoadingOffice365();
       yield LoginStateIdle();
       return;
     }

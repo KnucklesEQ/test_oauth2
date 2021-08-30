@@ -22,9 +22,9 @@ class LoginStateStartLoadingGitHub extends LoginState {
   String toString() => 'Login_State_StartLoadingGitHub';
 }
 
-class LoginStateStartLoadingTwitch extends LoginState {
+class LoginStateStartLoadingOffice365 extends LoginState {
   @override
-  String toString() => 'Login_State_StartLoadingTwitch';
+  String toString() => 'Login_State_StartLoadingOffice365';
 }
 
 class LoginStateEndLoadingGitHub extends LoginState {
@@ -32,9 +32,9 @@ class LoginStateEndLoadingGitHub extends LoginState {
   String toString() => 'Login_State_EndLoadingGitHub';
 }
 
-class LoginStateEndLoadingTwitch extends LoginState {
+class LoginStateEndLoadingOffice365 extends LoginState {
   @override
-  String toString() => 'Login_State_EndLoadingTwitch';
+  String toString() => 'Login_State_EndLoadingOffice365';
 }
 
 class LoginStateGitHubRefreshData extends LoginState {
