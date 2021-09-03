@@ -1,12 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:test_oauth2/blocs/login/login.dart';
 import 'package:http/http.dart' as http;
-import 'package:oauth2/oauth2.dart' as oauth2;
+import 'package:test_oauth2/session/active_session.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:test_oauth2/myoauth2lib/myoauth2lib.dart' as oauth2;
+
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
+  late ActiveSession _activeSession;
+
   final String githubClientID = 'bec31448a99e41c191cb';
   final String githubClientSecret = '77628eebe4637ee098e25f643d94fba8ae788ab6';
   final List<String> githubScopes = ['repo', 'read:org'];
@@ -18,32 +23,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   HttpServer? _redirectServer;
   oauth2.Client? _client;
 
-  LoginBloc() : super(LoginStateUninitialized());
+  LoginBloc() : super(LoginStateUninitialized()) {
+    _activeSession = new ActiveSession();
+  }
 
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is EventLoginInit) {
-      if(event.gitHubCode.isNotEmpty){
-        var grant = oauth2.AuthorizationCodeGrant(
-          githubClientID,
-          authorizeURI,
-          tokenURI,
-          secret: githubClientSecret,
-          httpClient: _JsonAcceptingHttpClient(),
-        );
-
-        Map<String, String> responseQueryParameters = {};
-        responseQueryParameters["code"] = event.gitHubCode;
-
-        _client = await grant.handleAuthorizationResponse(responseQueryParameters);
-
-        debugPrint("Access Token: " + _client!.credentials.accessToken);
-        print(_client!.credentials.toJson().toString());
-
-        yield LoginStateGitHubRefreshData(
-          accessToken: _client!.credentials.accessToken,
-          authToken: responseQueryParameters.toString(),
-        );
+      if(event.gitHubCode.isNotEmpty) {
+        var aux = jsonDecode(await _activeSession.getAuthorizationCodeGrant());
+        print("LA PUTAAAAA: " + aux.toString());
       }
 
       yield LoginStateIdle();
@@ -67,9 +56,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
 
       if (kIsWeb) {
+        await _activeSession.saveAuthorizationCodeGrant(jsonEncode(grant.toJson()));
         await _redirect(authorizationUrl);
-
-        return;
+        //yield LoginStateURL(url: authorizationUrl.toString());
       } else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
         await _redirectServer?.close();
         // Bind to an ephemeral port on localhost
@@ -109,8 +98,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     if (await canLaunch(url)) {
       if (kIsWeb) {
         await launch(url, webOnlyWindowName: '_self');
-      }
-      else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows)
+      } else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows)
         await launch(url);
     } else {
       print('Could not launch $url');

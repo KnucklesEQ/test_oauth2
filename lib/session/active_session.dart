@@ -1,11 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ActiveSession{
-  final String _storageKey = "tranvias_prefs_";
+class ActiveSession {
+  final String _storageKey = "testoauth_";
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   //Datos de la "Sesión Activa"
-  String _token = '';
+  String _jsonGrant = '';
 
   ///
   /// Singleton Factory
@@ -16,28 +16,28 @@ class ActiveSession{
 
   ActiveSession._internal();
 
-  Future<String> hasToken() async {
-    if (_token.isNotEmpty) return _token;
+  Future<String> getAuthorizationCodeGrant() async {
+    if (_jsonGrant.isNotEmpty) return _jsonGrant;
 
     final SharedPreferences prefs = await _prefs;
-    _token = prefs.getString(_storageKey + 'usertoken') ?? '';
+    _jsonGrant = prefs.getString(_storageKey + 'grant') ?? '';
 
-    return _token;
+    return _jsonGrant;
   }
 
-  Future<void> persistToken(String token) async {
+  Future<void> saveAuthorizationCodeGrant(String grant) async {
     final SharedPreferences prefs = await _prefs;
 
-    await prefs.setString(_storageKey + 'usertoken', token);
-    _token = token;
+    await prefs.setString(_storageKey + 'grant', grant);
+    _jsonGrant = grant;
     return;
   }
 
-  Future<void> deleteToken() async {
+  Future<void> deleteAuthorizationCodeGrant() async {
     final SharedPreferences prefs = await _prefs;
 
-    await prefs.setString(_storageKey + 'usertoken', '');
-    _token = '';
+    await prefs.setString(_storageKey + 'grant', '');
+    _jsonGrant = '';
     return;
   }
 }

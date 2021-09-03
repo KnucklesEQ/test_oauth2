@@ -14,6 +14,8 @@ class _Office365CardState extends State<Office365Card> {
   final double defaultBorderRadius = 3.0;
   bool isLoading = false;
 
+  String url = '';
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LoginBloc, LoginState>(
@@ -25,6 +27,11 @@ class _Office365CardState extends State<Office365Card> {
 
         if (state is LoginStateEndLoadingOffice365) {
           isLoading = false;
+          return;
+        }
+
+        if (state is LoginStateURL) {
+          url = state.url;
           return;
         }
       },
@@ -54,6 +61,12 @@ class _Office365CardState extends State<Office365Card> {
                               BlocProvider.of<LoginBloc>(context).add(
                             EventLoginOffice365ButtonPress(),
                           ),
+                          /*Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => WebViewXPage(url: url),
+                            ),
+                          ),*/
                           centered: false,
                           children: <Widget>[
                             Padding(

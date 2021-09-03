@@ -27,6 +27,15 @@ class LoginStateStartLoadingOffice365 extends LoginState {
   String toString() => 'Login_State_StartLoadingOffice365';
 }
 
+class LoginStateURL extends LoginState {
+  final String url;
+
+  const LoginStateURL({required this.url});
+
+  @override
+  String toString() => 'Login_State_CODE {$url}';
+}
+
 class LoginStateEndLoadingGitHub extends LoginState {
   @override
   String toString() => 'Login_State_EndLoadingGitHub';
