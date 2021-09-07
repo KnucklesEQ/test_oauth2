@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:test_oauth2/blocs/login/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:test_oauth2/session/active_session.dart';
+import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:test_oauth2/myoauth2lib/myoauth2lib.dart' as oauth2;
@@ -23,16 +24,42 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   HttpServer? _redirectServer;
   oauth2.Client? _client;
 
+  html.WindowBase? _popupWin;
+  oauth2.AuthorizationCodeGrant? grant2;
+
   LoginBloc() : super(LoginStateUninitialized()) {
     _activeSession = new ActiveSession();
+
+    html.window.onMessage.listen((event) {
+      print("Akuna Matata");
+      print(event.data.toString());
+
+      /// If the event contains the token it means the user is authenticated.
+      if (event.data.toString().contains('code=')) {
+        _login(event.data);
+      }
+    });
   }
 
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is EventLoginInit) {
-      if(event.gitHubCode.isNotEmpty) {
-        var aux = jsonDecode(await _activeSession.getAuthorizationCodeGrant());
-        print("LA PUTAAAAA: " + aux.toString());
+      if (event.gitHubCode.isNotEmpty) {
+        String aux = await _activeSession.getAuthorizationCodeGrant();
+
+        print("El AUX --> " + aux);
+
+        Map<String, dynamic> paco = jsonDecode(aux);
+
+        print("PACO --> " + paco.toString());
+
+        var grant = oauth2.AuthorizationCodeGrant.fromJson(paco);
+
+        _client =
+            await grant.handleAuthorizationResponse({"code": event.gitHubCode});
+
+        //debugPrint("Access Token: " + _client!.credentials.accessToken);
+        //print(_client!.credentials.toJson().toString());
       }
 
       yield LoginStateIdle();
@@ -56,9 +83,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
 
       if (kIsWeb) {
-        await _activeSession.saveAuthorizationCodeGrant(jsonEncode(grant.toJson()));
+        print("TO JSON -> " + grant.toJson().toString());
+        await _activeSession
+            .saveAuthorizationCodeGrant(jsonEncode(grant.toJson()));
         await _redirect(authorizationUrl);
-        //yield LoginStateURL(url: authorizationUrl.toString());
       } else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
         await _redirectServer?.close();
         // Bind to an ephemeral port on localhost
@@ -87,6 +115,40 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     if (event is EventLoginOffice365ButtonPress) {
       yield LoginStateStartLoadingOffice365();
 
+      grant2 = oauth2.AuthorizationCodeGrant(
+        githubClientID,
+        authorizeURI,
+        tokenURI,
+        secret: githubClientSecret,
+        httpClient: _JsonAcceptingHttpClient(),
+      );
+
+      Uri authorizationUrl = grant2!.getAuthorizationUrl(
+        Uri.parse('http://localhost:8200/static.html'),
+        scopes: githubScopes,
+      );
+
+      // Our current app URL
+      final currentUri = Uri.base;
+
+      // Generate the URL redirection to our static.html page
+      final redirectUri = Uri(
+        host: currentUri.host,
+        scheme: currentUri.scheme,
+        port: currentUri.port,
+        path: '/static.html',
+      );
+
+      // Full target URL with parameters
+      final authUrl = 'https://www.google.com/';
+
+      // Open window
+      _popupWin = html.window.open(
+        authorizationUrl.toString(),
+        "Twitch Auth",
+        "width=800, height=900, scrollbars=yes",
+      );
+
       yield LoginStateEndLoadingOffice365();
       yield LoginStateIdle();
       return;
@@ -114,6 +176,32 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     await _redirectServer!.close();
     _redirectServer = null;
     return params;
+  }
+
+  void _login(String data) async {
+    /// Parse data into an Uri to extract the token easily.
+    //final receivedUri = Uri.parse(data);
+
+    /// Get the access_token from the `Uri.fragement` (depending of the
+    /// authentication service it might be contained in another
+    /// property of your Uri).
+    String _token = data
+        .split('?')
+        .firstWhere((e) => e.startsWith('code='))
+        .substring('code='.length);
+
+    print("EL PUTO DATO -> " + _token);
+
+    /// Close the popup window
+    if (_popupWin != null) {
+      _popupWin!.close();
+      _popupWin = null;
+    }
+
+    _client = await grant2!.handleAuthorizationResponse({"code": _token});
+
+    debugPrint("Access Token: " + _client!.credentials.accessToken);
+    print(_client!.credentials.toJson().toString());
   }
 }
 
